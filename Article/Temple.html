@@ -1,0 +1,151 @@
+---
+layout: compress
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <link rel="stylesheet" href="{{site.baseurl}}/css/main.css">
+  <link rel="stylesheet" href="{{site.baseurl}}/css/monokai-sublime.css">
+  {% seo %}
+</head>
+<body style="background-color: rgb(255, 255, 255)">
+ <script src="{{site.baseurl}}/js/theme.min.js"></script>
+  <script src="{{site.baseurl}}/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <header>
+      <a href="{{site.baseurl}}/"><div class="home"></div></a>
+  </header>
+
+
+
+
+<h1 class="post-headline">Treap模板</h1>
+<div class="meta"><span>February 17, 2017</span></div>
+<pre><code class = "c++">#include &lt;time.h&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+
+#define Lc (o -&gt; Ch[0])
+#define Rc (o -&gt; Ch[1])
+#define val (o -&gt; v)
+#define pre (o -&gt; p)
+#define siz (o -&gt; S)
+
+using namespace std;
+
+const int Maxn = 10001;
+
+struct Treap{
+    Treap* Ch[2];
+    int p,v,S;
+};
+
+int root = 0,n,x,a[Maxn];
+
+void Update(Treap* &amp;o){
+    siz = 1;
+    if(Lc != NULL)siz += Lc -&gt; S;
+    if(Rc != NULL)siz += Rc -&gt; S;
+}
+
+void Rotate(Treap* &amp;o,int d){
+    Treap* P = o -&gt; Ch[d^1];//P Is A Point That Willing To Be A Root
+    o -&gt; Ch[d^1] = P -&gt; Ch[d];//Eh......Rotate Should Give P&#39;s Child To O
+    P -&gt; Ch[d] = o;//O Is Going Down So It Is P&#39;s Child
+    Update(o);Update(P);//Points&#39; Size Has Been Changed
+    o = P;//Use P To Replace O
+}
+
+void Insert(Treap* &amp;o,int x){
+    if(o == NULL){//Insert It To Leaves
+        o = new Treap();
+        Lc = Rc = NULL;
+        pre = rand();val = x;
+    }
+    else {//Rotate And Let x Going Up
+         int d = x &lt; val;
+         Insert(o -&gt; Ch[d],x);
+         if( ( pre ) &gt; o -&gt; Ch[d] -&gt; p)Rotate(o,d^1);
+    }
+    Update(o);//Mountain O&#39;s Size
+}
+
+int Find(Treap* o,int x){
+    while(o != NULL){
+        if(val == x)return 1;
+        o = (x &lt; val) ? Rc : Lc ;//Oh It&#39;s Easy
+    }return 0;
+}
+
+void Delete(Treap* &amp;o,int x){
+    if(val == x){//If Find Out X 
+        if(Lc == NULL)o = Rc;
+        else if(Rc == NULL)o = Lc;//Link Child To Father Straight
+        else {
+            int T = (Lc -&gt; p) &lt; (Rc -&gt; p);//Search A Child Tree That Has A Less Pre
+            Rotate(o,T);Delete(o -&gt; Ch[T],x);//Rotate It And Delete It In Child Tree
+        }
+    }
+    else Delete(o -&gt; Ch[x &lt; val],x);
+    if(o != NULL)Update(o);
+}
+
+int Kth_Min(Treap* o,int k){
+    if(o == NULL || k &lt;= 0 || k &gt; siz)return 0;//Clearly Can&#39;t Find Kth Cases
+    int S = (Rc == NULL) ? 0 : (Rc -&gt; S);//A Half&#39;s Size
+    if(k == S + 1)return val;//Has Found It
+    else if(k &lt;= S)return Kth_Min(Rc,k);//Find It In Child Tree
+    else return Kth_Min(Lc,k - S - 1);
+}
+
+int Kth_Max(Treap* o,int k){//The Same As Above
+    if(o == NULL || k &lt;= 0 || k &gt; siz)return 0;
+    int S = (Lc == NULL) ? 0 : (Lc -&gt; S);
+    if(k == S + 1)return val;
+    else if(k &lt;= S)return Kth_Max(Lc,k);
+    else return Kth_Max(Rc,k - S - 1);    
+}
+
+void Print(Treap* o){//Print A Tree
+    printf(&quot;%d :&quot;,val);
+    printf(&quot;Lc -&gt; :&quot;);
+    if(Lc == NULL)printf(&quot;NULL &quot;);
+    else printf(&quot;%d &quot;,Lc -&gt; v);
+    printf(&quot;Rc -&gt; :&quot;);
+    if(Rc == NULL)printf(&quot;NULL \n&quot;);
+    else printf(&quot;%d \n&quot;,Rc -&gt; v);
+    if(Lc != NULL)Print(Lc);
+    if(Rc != NULL)Print(Rc);
+}
+
+int main(){
+    srand(time(NULL));
+    scanf(&quot;%d&quot;,&amp;n);
+    Treap* Root = NULL;
+    for(int i=1;i&lt;=n;i++){
+        scanf(&quot;%d&quot;,&amp;a[i]);
+        Insert(Root,a[i]);
+    }
+    Print(Root);
+    // while(1);
+    return 0;
+}
+</code></pre>
+
+
+<footer>
+    <div class="links">
+        <a href="{{site.baseurl}}/about/">About</a>
+        <a href="{{site.baseurl}}/contact/">Contact</a>
+    </div>
+    <div class="theme" onclick="theme()" style="    background-image: url({{site.baseurl}}/images/theme.svg)"></div>
+</footer>
+{% include analytics.html %}
+
+</body>
+</html>

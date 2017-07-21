@@ -1,0 +1,147 @@
+---
+layout: compress
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <link rel="stylesheet" href="{{site.baseurl}}/css/main.css">
+  <link rel="stylesheet" href="{{site.baseurl}}/css/monokai-sublime.css">
+  {% seo %}
+</head>
+<body style="background-color: rgb(255, 255, 255)">
+ <script src="{{site.baseurl}}/js/theme.min.js"></script>
+  <script src="{{site.baseurl}}/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <header>
+      <a href="{{site.baseurl}}/"><div class="home"></div></a>
+  </header>
+
+<h1 class="post-headline">[BZOJ]1009题解</h1>
+<div class="meta"><span>March 01, 2017</span></div>
+
+<blockquote>
+<h1 id="-">题意</h1>
+<h3 id="description">Description</h3>
+<h3 id="-gt-n-x1x2-xn-0-xi-9-">　　阿申准备报名参加GT考试，准考证号为N位数X1X2....Xn(0&lt;=Xi&lt;=9),他不希望准考证号上出现不吉利的数字。</h3>
+<h3 id="-a1a2-am-0-ai-9-m-x1x2-xn-a1a2-am-a1-x1-0">他的不吉利数学A1A2...Am(0&lt;=Ai&lt;=9)有M位，不出现是指X1X2...Xn中没有恰好一段等于A1A2...Am. A1和X1可以为0</h3>
+<h3 id="input">Input</h3>
+<h3 id="-n-m-k-m-n-10-9-m-20-k-1000">　　第一行输入N,M,K.接下来一行输入M位的数。 N&lt;=10^9,M&lt;=20,K&lt;=1000</h3>
+<h3 id="output">Output</h3>
+<h3 id="-k-">　　阿申想知道不出现不吉利数字的号码有多少种，输出模K取余的结果.</h3>
+<h3 id="sample-input">Sample Input</h3>
+<h3 id="4-3-100">4 3 100</h3>
+<h3 id="111">111</h3>
+<h3 id="sample-output">Sample Output</h3>
+<h3 id="81">81</h3>
+<h1 id="-">题解</h1>
+<h2 id="-"><del>蒟蒻膜拜神题</del></h2>
+<h2 id="-here-http-blog-csdn-net-cjk_cjk-article-details-43038377-">奉上大牛博客 <a href="http://blog.csdn.net/cjk_cjk/article/details/43038377">Here</a></h2>
+<h2 id="-">像这种题如果没有见过能做出来是万分厉害的%%%</h2>
+<h2 id="-kmp-dp-"><del>反正我不会</del> 用到了Kmp一类的Dp 需要一些经验才能对这种题有感觉</h2>
+<h2 id="f-i-j-i-j-">f[i][j]意为以准考证中的地i位为结尾的后缀已经匹配到了不吉利串以j为结尾的前缀的方案数(这口气好长)</h2>
+<h2 id="-sum_-i-0-m-1-f-n-i-">答案就是$\sum_{i=0}^{m-1}f[n][i]$显然</h2>
+<h2 id="-">那么我们考虑如何转移 我们考虑从前面“要”</h2>
+<h2 id="-f-i-j-sum_-k-0-m-1-f-i-1-k-a-k-j-">$$f[i][j] = \sum_{k=0}^{m-1}(f[i-1][k] * a[k][j])$$</h2>
+<h2 id="-f-i-1-k-i-1-">这个乱七八糟的式子是什么东西呢?考虑在已知f[i-1][k]的答案后再i-1的后面加了一个数字</h2>
+<h2 id="-i-f-i-j-f-i-1-k-">加了一个数字后变成了i(加了一个) 那么是不是f[i][j] = f[i-1][k]?</h2>
+<h2 id="-0-9-f-i-1-k-k-">当然不是 加了这个数字是未知的 但我们知道只有0~9这十个数字 加了不同的数字会让f[i-1][k]中的k变成不同的值(即匹配的位数会有变化)</h2>
+<h2 id="-a-k-j-a-i-1-k-i-1-x-j-x-">那么a[k][j]这个a数组代表当i-1状态匹配了k位 在i-1后面任意加一个数字x致使可以匹配j位 这个x的个数</h2>
+<h2 id="-a-a-">现在只要我们有了这个a数组就可以很方便的转移 那么a怎么求呢</h2>
+<h2 id="-a-next-kmp-">很好求 <del>一眼看上去</del>可以知道上述a数组的功能其实就是一个next表(Kmp中的那个)</h2>
+<h2 id="-kmp-a-"><del>我不讲Kmp</del>这样就可以通过对不吉利串来处理出一个a数组 然后进行转移</h2>
+<h2 id="-n-10-9-">似乎问题已经解决 但是数据范围?N &lt;= 10 ^ 9 ...</h2>
+<h2 id="-"><del>好的此题不可做大家散了吧</del></h2>
+<h2 id="-sigma-f-i-1-k-a-k-j-a-">恩我们观察这个转移式子 sigma f[i-1][k] * a[k][j] 多么像矩阵乘法的形式！而且每次转移乘的都是同一个a数组！</h2>
+<h2 id="-f-a-a-b-a-b-">我们把f看成矩阵A a看成矩阵B 那么A * B就是一次转移</h2>
+<h2 id="a-b-b-b-b-b-a-">A <em> B </em> B <em> B </em> B ...如此乘很多次就可以得到最后的答案 而矩阵乘满足结合律 对B矩阵快速幂再与A相乘即可</h2>
+<h2 id="-sum_-i-0-m-1-f-0-k-f-0-0-1">最后答案取$\sum_{i=0}^{m-1}f[0][k]$初值f[0][0] = 1</h2>
+<h2 id="-kmp-dp-">我们总结一些：Kmp预处理 + Dp + 矩阵乘法快速幂</h2>
+<h2 id="-">再次%蒟蒻</h2>
+<h2 id="-">下面上代码</h2>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//方程 : dp[i][j] = Sigma ( dp[i-1][k] * a[k][j] ).0&lt;=k&lt;=m-1
+//这个式子其实是dp数组和a数组的矩阵乘 所以可以写成dp = dp * a
+//最后快速幂加速 --- sssSSSay
+using namespace std;
+
+const int M = 80;
+
+int dp[M][M],a[M][M],next[M],p,n,m;
+char s[M];
+
+void Mul(int a[M][M],int b[M][M],int c[M][M]){
+    int d[M][M];
+    for(int i=0;i&lt; m;i++){
+        for(int j=0;j&lt; m;j++){
+            d[i][j] = 0;
+            for(int k=0;k&lt; m;k++)d[i][j] = (d[i][j] + a[i][k] * b[k][j]) % p;
+        }
+    }
+    for(int i=0;i&lt; m;i++){
+        for(int j=0;j&lt; m;j++)c[i][j] = d[i][j];
+    }
+}
+
+int main(){
+    freopen(&quot;bzoj_1009.in&quot;,&quot;r&quot;,stdin);
+    freopen(&quot;bzoj_1009.out&quot;,&quot;w&quot;,stdout);
+    scanf(&quot;%d%d%d&quot;,&amp;n,&amp;m,&amp;p);
+    scanf(&quot;%s&quot;,(s + 1));int j = 0;
+    for(int i=2;i&lt;=m;i++){//处理Next表
+        while(j &amp;&amp; s[i] != s[j + 1])j = next[j];
+        if(s[i] == s[j + 1])j++;next[i] = j;
+    }
+    for(int i=0;i&lt; m;i++){//枚举在哪一位失配
+        for(int j=0;j&lt;=9;j++){//枚举这一位准考证是什么
+            int t = i;while(t&gt;0 &amp;&amp; s[t + 1] - &#39;0&#39; != j)t = next[t];//找匹配在哪里
+            if(s[t + 1] - &#39;0&#39; == j)a[i][t+1]++;//由i转移到t的数+1
+            else a[i][0]++;//重新到第一位 即无法匹配
+        }
+    }
+    dp[0][0] = 1;//初始化
+    while(n){//快速幂
+        if(n &amp; 1)Mul(dp,a,dp);
+        Mul(a,a,a);
+        n &gt;&gt;= 1;
+    }int Sum = 0;
+    for(int i=0;i&lt; m;i++)Sum = (Sum + dp[0][i]) % p;//最后一个阶段的所有状态相加即为答案
+    printf(&quot;%d\n&quot;,Sum);
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id="-bug">欢迎指出Bug</h1>
+<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="10002" data-title="Treap" data-url="https://ssssssay.github.io/sssSSSay.github.io/2017/02/17/Treap%E6%A8%A1%E6%9D%BF.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"sssSSSay"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+<footer>
+    <div class="links">
+        <a href="{{site.baseurl}}/about/">About</a>
+        <a href="{{site.baseurl}}/contact/">Contact</a>
+    </div>
+    <div class="theme" onclick="theme()" style="    background-image: url({{site.baseurl}}/images/theme.svg)"></div>
+</footer>
+{% include analytics.html %}
+
+</body>
+</html>

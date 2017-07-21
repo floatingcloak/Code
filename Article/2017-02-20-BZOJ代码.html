@@ -1,0 +1,825 @@
+---
+layout: compress
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <link rel="stylesheet" href="{{site.baseurl}}/css/main.css">
+  <link rel="stylesheet" href="{{site.baseurl}}/css/monokai-sublime.css">
+  {% seo %}
+</head>
+<body style="background-color: rgb(255, 255, 255)">
+ <script src="{{site.baseurl}}/js/theme.min.js"></script>
+  <script src="{{site.baseurl}}/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <header>
+      <a href="{{site.baseurl}}/"><div class="home"></div></a>
+  </header>
+
+
+
+
+<h1 class="post-headline">BZOJ代码(更新)</h1>
+<div class="meta"><span>February 20, 2017</span></div>
+
+<h1 id="1000">1000</h1>
+<pre><code class = "c++">#include &lt;iostream&gt;
+using namespace std;
+int main(){
+    int a,b;
+    cin&gt;&gt;a&gt;&gt;b;
+    cout&lt;&lt;a + b&lt;&lt;endl;
+    return 0;
+}
+</code></pre><h1 id="1001">1001</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//By sssSSSay
+//Max_Flow
+#define INF 100000007
+using namespace std;
+struct node {int next,val,to;}E[6000010];
+int n,m,tot,Ans,dis[1000010],H[1000010],q[1000010];
+void Add(int u,int v,int c){E[++tot].next = H[u];E[tot].to = v;E[tot].val = c;H[u] = tot;}
+void Link(int u,int v,int c){Add(u,v,c);Add(v,u,c);}
+int Num(int x,int y){return (x - 1) * m + y;}
+int Bfs(){
+    memset(dis,-1,sizeof(dis));
+    int h = 1,t = 1;dis[1] = 0;q[h] = 1;
+    while(h &lt;= t){
+        int u = q[h];
+        // printf(&quot;%d :&quot;,u);
+        for(int i=H[u];i;i=E[i].next){
+            int v = E[i].to;
+            // printf(&quot;%d &quot;,v);
+            if(dis[v] == -1 &amp;&amp; E[i].val){
+                dis[v] = dis[u] + 1;
+                q[++t] = v;
+            }
+        }h++;
+        // printf(&quot;\n&quot;);
+    }if(dis[n * m] == -1)return 0;
+    return 1;
+}
+int Max_Flow(int x,int Min){
+    if(x == n * m)return Min;
+    int w,used = 0;
+    for(int i=H[x];i;i=E[i].next){
+        int v = E[i].to;
+        if(E[i].val &amp;&amp; dis[v] == dis[x] + 1){
+            w = Min - used;
+            w = Max_Flow(v,min(w,E[i].val));
+            used += w;
+            E[i].val -= w;
+            E[i+1].val += w;
+            if(used == Min)return Min;
+        }
+    }if(!used)dis[x] = -1;
+    return used;
+}
+int main(){
+    scanf(&quot;%d%d&quot;,&amp;n,&amp;m);
+    int x;
+    for(int i=1;i&lt;=n;i++){
+        for(int j=1;j&lt;m;j++){
+            scanf(&quot;%d&quot;,&amp;x);
+            Link(Num(i,j),Num(i,j+1),x);
+        }
+    }
+    for(int i=1;i&lt;n;i++){
+        for(int j=1;j&lt;=m;j++){
+            scanf(&quot;%d&quot;,&amp;x);
+            Link(Num(i,j),Num(i+1,j),x);
+        }
+    }
+    for(int i=1;i&lt;n;i++){
+        for(int j=1;j&lt;m;j++){
+            scanf(&quot;%d&quot;,&amp;x);
+            Link(Num(i,j),Num(i+1,j+1),x);
+        }
+    }
+    while(Bfs())Ans += Max_Flow(1,INF);
+    printf(&quot;%d\n&quot;,Ans);
+    return 0;
+}
+</code></pre><h1 id="1002">1002</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//by sssSSSay
+//eh^ zhao gui lv
+//f[1] = 1;f[2] = 3;f[i] = f[i-1] + f[i-2]
+//F[i] = f[i] * f[i] - (i % 2 == 0) * 4
+using namespace std;
+const int Maxn = 10001;
+int n,LenPre,LenNow,LenTemp,LenAns;
+int Pre[Maxn],Now[Maxn],Temp[Maxn],Ans[Maxn];
+void Add(){
+    int Len = max(LenPre,LenNow),x = 0;
+    for(int i=1;i&lt;=Len;i++){
+        Temp[i] = Pre[i] + Now[i] + x;
+        x = Temp[i] / 10;
+        Temp[i] %= 10;
+    }while(x){Temp[++Len] = x % 10;x /= 10;}
+    LenTemp = Len;
+}
+void Mul(){
+    int Len;
+    for(int i=1;i&lt;=LenPre;i++){
+        Len = i + LenPre - 1;int x = 0;
+        for(int j=1;j&lt;=LenPre;j++){
+            Ans[i+j-1] += Pre[i] * Pre[j] + x;
+            x = Ans[i+j-1] / 10;
+            Ans[i+j-1] %= 10;
+        }
+        while(x &gt; 0){Ans[++Len] += x % 10;x /= 10;}
+    }LenAns = Len;
+}
+int main(){
+    scanf(&quot;%d&quot;,&amp;n);
+    LenPre = 1;Pre[1] = 1;
+    LenNow = 1;Now[1] = 3;
+    for(int i=2;i&lt;=n;i++){
+        Add();
+        LenPre = LenNow;memcpy(Pre,Now,sizeof(Now));
+        LenNow = LenTemp;memcpy(Now,Temp,sizeof(Temp));
+    }
+    Mul();
+    if(n % 2 == 1){
+        for(int i=LenAns;i&gt;=1;i--)printf(&quot;%d&quot;,Ans[i]);
+        printf(&quot;\n&quot;);
+    }
+    else {
+        int Cur = 1;Ans[Cur] -= 4;
+        while(Ans[Cur] &lt; 0){Ans[Cur] += 10;Ans[++Cur]--;}
+        for(int i=LenAns;i&gt;=1;i--)printf(&quot;%d&quot;,Ans[i]);
+        printf(&quot;\n&quot;);
+    }
+    return 0;
+}
+</code></pre><h1 id="1003">1003</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//By sssSSSay
+//DP
+typedef long long LL;
+#define INF 100000007
+using namespace std;
+const int Maxn = 110;
+int H[Maxn],dis[Maxn],q[Maxn*Maxn],Path[Maxn],Temp[Maxn];
+LL f[Maxn],Dp[Maxn][Maxn];
+int n,m,k,e,u,v,c,x,y,z,d,K,tot,Ans;
+bool vis[Maxn],Judge[Maxn][Maxn],Can[Maxn];
+struct node {int to,val,next;}E[Maxn];
+void Add(int u,int v,int c){E[++tot].to = v;E[tot].val = c;E[tot].next = H[u];H[u] = tot;}
+int Spfa(int a,int b){
+    for(int i=1;i&lt;=m;i++){
+        dis[i] = INF;
+        vis[i] = 0;
+        Can[i] = 0;
+    }
+    for(int i=1;i&lt;=m;i++)for(int j=a;j&lt;=b;j++)if(Judge[i][j])Can[i] = 1;
+    int h = 1,t = 1;dis[1] = 0;q[h] = 1;Path[1] = -1;
+    while(h &lt;= t){
+        int u = q[h];
+        vis[u] = 0;
+        for(int i=H[u];i;i=E[i].next){
+            int v = E[i].to;
+            if(Can[v])continue;
+            if(dis[u] + E[i].val &lt; dis[v]){
+                dis[v] = dis[u] + E[i].val;
+                Path[v] = u;
+                if(!vis[v]){
+                    vis[v] = 1;
+                    q[++t] = v;
+                }
+            }
+        }h++;
+    }return dis[m];
+}
+int main(){
+    scanf(&quot;%d%d%d%d&quot;,&amp;n,&amp;m,&amp;k,&amp;e);
+    for(int i=1;i&lt;=e;i++){
+        scanf(&quot;%d%d%d&quot;,&amp;u,&amp;v,&amp;c);
+        Add(u,v,c);Add(v,u,c);
+    }
+    scanf(&quot;%d&quot;,&amp;d);
+    for(int i=1;i&lt;=d;i++){
+        scanf(&quot;%d%d%d&quot;,&amp;x,&amp;y,&amp;z);
+        for(int j=y;j&lt;=z;j++)Judge[x][j] = 1;
+    }
+    for(int i=1;i&lt;=n;i++){
+        for(int j=i;j&lt;=n;j++)Dp[i][j] = (LL)Spfa(i,j);
+    }
+    for(int i=1;i&lt;=n;i++){
+        f[i] = (LL)Dp[1][i] * (LL)i;
+        for(int j=0;j&lt;i;j++)f[i] = min(f[i],f[j] + (LL)k + Dp[j+1][i] * (LL)(i - j));
+    }
+    printf(&quot;%d\n&quot;,f[n]);
+    return 0;
+}
+</code></pre><h1 id="1004">1004</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+typedef long long LL;
+using namespace std;
+const int Maxn = 201;
+int C[Maxn][Maxn];
+int Sr,Sg,Sb,n,p,m;
+void Solve(){
+    for(int i=2;i&lt;=n+1;i++){
+        for(int j=0;j&lt;=i;j++){
+            C[i][j] = (C[i][j] + C[i-1][j]) % p;
+            if(j != 0)C[i][j] = (C[i][j] + C[i-1][j-1]) % p;
+        }
+    }
+}
+LL Pow(int a,int n){
+    int c = 1;
+    while(n){
+        if(n &amp; 1)c = (c * a) % p;
+        a = (a * a) % p;
+        n = n &gt;&gt; 1;
+    }return c;
+}
+int main(){
+    scanf(&quot;%d%d%d%d%d&quot;,&amp;Sr,&amp;Sb,&amp;Sg,&amp;m,&amp;p);
+    C[1][0] = 1;C[1][1] = 1;
+    n = Sr + Sb + Sg;Solve();
+    LL S = ((LL)C[n][Sr] * (LL)C[n - Sr][Sg]) % p;
+    printf(&quot;%lld&quot;,(S * Pow(m + 1,p - 2)) % p);
+    // while(1);
+    return 0;
+}
+</code></pre><h1 id="1005">1005</h1>
+<pre><code class = "c++">#include &lt;cmath&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+#define p 1000000
+using namespace std;
+const int Maxn = 1010;
+int n,d[Maxn],pri[Maxn*Maxn],Ans[Maxn],LenAns,tot,cnt,m,num[Maxn];
+inline bool Judge(int x){int N = sqrt(x);
+    for(int i=2;i&lt;=N;i++)if(x % i == 0)return 0;
+    return 1;
+}
+void Mul(int x){
+    for(int i=1;i&lt;=LenAns;i++)Ans[i] *= x;
+    for(int i=1;i&lt;=LenAns;i++){
+        Ans[i + 1] += Ans[i] / p;
+        Ans[i] %= p;
+    }
+    while(Ans[LenAns + 1] &gt; 0){LenAns++;Ans[LenAns + 1] += Ans[LenAns] / p;Ans[LenAns]  %= p;}
+}
+void Solve(int x,int c){
+    for(int i=1;i&lt;=x;i++){
+        int k = i;
+        for(int j=1;j&lt;=cnt;j++){
+            if(k &lt;= 1)break;
+            while(k % pri[j] == 0){
+                num[j] += c;
+                k /= pri[j];
+            }
+        }
+    }
+}
+void Print(){
+    for(int i=LenAns;i&gt;=1;i--){
+        if(i == LenAns)printf(&quot;%d&quot;,Ans[i]);
+        else printf(&quot;%06d&quot;,Ans[i]);
+    }printf(&quot;\n&quot;);
+}
+int main(){
+    scanf(&quot;%d&quot;,&amp;n);Ans[1] = 1;LenAns = 1;
+    if(n == 1){
+        scanf(&quot;%d&quot;,&amp;d[1]);
+        if(d[1] == 0)printf(&quot;1\n&quot;);
+        else printf(&quot;0\n&quot;);
+        return 0;
+    }
+    for(int i=1;i&lt;=n;i++){
+        scanf(&quot;%d&quot;,&amp;d[i]);
+        if(d[i] == 0){
+            printf(&quot;0\n&quot;);
+            return 0;
+        }
+        else if(d[i] != -1)tot += d[i] - 1;
+        else m++;
+    }
+    if(tot &gt; n - 2){
+        printf(&quot;0\n&quot;);
+        return 0;
+    }
+    for(int i=2;i&lt;=1000;i++)if(Judge(i))pri[++cnt] = i;
+    Solve(n - 2,1);Solve(n - 2 - tot,-1);
+    for(int i=1;i&lt;=n;i++)if(d[i] != -1)Solve(d[i] - 1,-1);
+    for(int i=1;i&lt;=cnt;i++){
+        for(int j=1;j&lt;=num[i];j++)Mul(pri[i]);
+    }
+    for(int i=1;i&lt;=n-tot-2;i++)Mul(m);
+    Print();
+    return 0;
+}
+</code></pre><h1 id="1006">1006</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+
+using namespace std;
+
+const int Maxn = 100100;
+
+struct node {int to,next;}E[3000010];
+
+int n,m,q[Maxn],d[Maxn],col[Maxn],hash[Maxn],tot,H[Maxn],Ans;
+bool vis[Maxn];
+
+void Insert(int u,int v){E[++tot].to = v;E[tot].next = H[u];H[u] = tot;}
+
+int main(){
+    scanf(&quot;%d%d&quot;,&amp;n,&amp;m);
+    for(int i=1;i&lt;=m;i++){
+        int x,y;scanf(&quot;%d%d&quot;,&amp;x,&amp;y);
+        Insert(x,y);Insert(y,x);
+    }
+    for(int i=n;i&gt;=1;i--){
+        int t = 0;
+        for(int j=1;j&lt;=n;j++)if(!vis[j] &amp;&amp; d[j] &gt;= d[t])t = j;
+        vis[t] = 1;q[i] = t;
+        for(int j=H[t];j;j=E[j].next)d[E[j].to]++;
+    }
+    for(int i=n;i&gt;=1;i--){
+        int u = q[i],j;
+        for(int k=H[u];k;k=E[k].next)hash[col[E[k].to]] = i;
+        for(j=1;;j++)if(hash[j] != i)break;
+        col[u] = j;if(j &gt; Ans)Ans = j;
+    }
+    printf(&quot;%d\n&quot;,Ans);
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id = "1010">1010</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+
+typedef long long LL;
+
+using namespace std;
+
+const int Maxn = 50010;
+
+int q[Maxn],n,l,c;
+LL a[Maxn],dp[Maxn],g[Maxn];
+
+double Slope(int k,int j){//斜率公式
+    return (  (dp[j] + g[j]*g[j] + 2 * c * g[j])  -  (dp[k] + g[k] * g[k] + 2 * c * g[k] )  ) / (2.0* (g[j] - g[k]) );
+}
+
+int main(){
+    scanf(&quot;%d%d&quot;,&amp;n,&amp;l);c = l + 1;
+    for(int i=1;i&lt;=n;i++){
+        scanf(&quot;%lld&quot;,&amp;a[i]);
+        g[i] = g[i-1] + a[i];
+    }
+    for(LL i=1;i&lt;=n;i++)g[i] += i;
+    int h = 1,t = 0;q[++t] = 0;
+    for(int i=1;i&lt;=n;i++){//维护单调队列
+        while(h &lt; t &amp;&amp; Slope(q[h],q[h+1]) &lt;= g[i])h++;
+        int w = q[h];//从队首取出答案
+        dp[i] = dp[w] + (g[i] - g[w] - (LL)c) * (g[i] - g[w] - (LL)c);
+        while(h &lt; t &amp;&amp; Slope(q[t],i) &lt; Slope(q[t-1],q[t]))t--;
+        q[++t] = i;//维护下凸性并加入i点
+    }printf(&quot;%lld\n&quot;,dp[n]);
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id = "1011">1011</h1>
+<pre><code class = "c++">#include &lt;cmath&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//允许有误差?什么鬼东西...
+using namespace std;
+
+const int Maxn = 100010;
+
+int n;
+double A,Sum[Maxn],c[Maxn],m[Maxn];
+
+int main(){
+    // freopen(&quot;bzoj_1011_planet.in&quot;,&quot;r&quot;,stdin);
+    // freopen(&quot;bzoj_1011_planet.out&quot;,&quot;w&quot;,stdout);
+    scanf(&quot;%d%lf&quot;,&amp;n,&amp;A);
+    for(int i=1;i&lt;=n;i++){
+        scanf(&quot;%lf&quot;,&amp;m[i]);
+        Sum[i] = Sum[i-1] + m[i];
+    }int Up = min(5000,n);
+    for(int i=1;i&lt;=Up;i++){//小数据保证正确性
+        int k = floor(A * (double)i);
+        for(int j=1;j&lt;=k;j++)c[i] += m[j] / (double)(i - j);
+        c[i] *= m[i];
+    }
+    for(int i=Up+1;i&lt;=n;i++){//大数据进行估计
+        int k = floor(A * (double)i);
+        c[i] = m[i] * Sum[k] / ((double)i - ((double)k / 2.0));
+    }
+    for(int i=1;i&lt;=n;i++)printf(&quot;%.6lf\n&quot;,c[i]);
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id = "1012">1012</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//比较简单的线段树 O(∩_∩)O
+//好像有更优的单调栈做法
+typedef long long LL;
+
+#define lc  (o * 2)
+#define rc  (o * 2 + 1)
+#define mid ((l + r) / 2)
+#define INF 1000000007
+
+using namespace std;
+
+const int Maxn = 200010;
+
+int m,n;
+LL Max[Maxn * 4],t,d,x;
+
+LL M(LL a,LL b){return a &gt; b ? a : b ;}
+
+void Add(int l,int r,int o){
+    // printf(&quot;&gt;&gt;&gt;%d %d\n&quot;,l,r);
+    if(l == r &amp;&amp; l == n){Max[o] = x;return;}
+    if(n &lt;= mid)Add(l,mid,lc);
+    if(n  &gt; mid)Add(mid+1,r,rc);
+    // printf(&quot;%d %d\n&quot;,o,Max[o]);
+    Max[o] = M(Max[lc],Max[rc]);
+    // printf(&quot;%d %d\n&quot;,o,Max[o]);
+}
+
+LL Query(int l,int r,int o,int a,int b){
+    // printf(&quot;%d %d %d %lld\n&quot;,l,r,o,Max[o]);
+    if(l == r)return Max[o];
+    if(l == a &amp;&amp; r == b)return Max[o];
+    else if(b &lt;= mid)return Query(l,mid,lc,a,b);
+    else if(a &gt;  mid)return Query(mid+1,r,rc,a,b);
+    else return M(Query(l,mid,lc,a,mid),Query(mid+1,r,rc,mid+1,b));
+}
+
+int main(){
+    // freopen(&quot;bzoj_1012.in&quot;,&quot;r&quot;,stdin);
+    // freopen(&quot;bzoj_1012.out&quot;,&quot;w&quot;,stdout);
+    scanf(&quot;%d%lld&quot;,&amp;m,&amp;d);
+    for(int i=1;i&lt;=m;i++){scanf(&quot;\n&quot;);
+        // printf(&quot;%d\n&quot;,Max[1]);
+        // printf(&quot;%d\n&quot;,n);
+        char c;scanf(&quot;%c%lld&quot;,&amp;c,&amp;x);
+        if(c == &#39;A&#39;){x = (x + t) % d;n++;Add(1,Maxn,1);}
+        else {
+            LL w = Query(1,Maxn,1,n-x+1,n);t = w;
+            printf(&quot;%lld\n&quot;,w);
+        }
+    }
+    return 0;
+}
+</code></pre>
+<h1 id = "1013">1013</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+//列出各点与圆点距离相同的式子
+//把平方项消掉就可以得到n元一次方程
+//高斯消元解出n个解即可♪(^∇^*)
+using namespace std;
+
+const int Maxn = 11;
+
+int n;
+double a[Maxn][Maxn],d[Maxn][Maxn];
+
+int main(){
+    scanf(&quot;%d&quot;,&amp;n);
+    for(int i=1;i&lt;=n+1;i++){
+        for(int j=1;j&lt;=n;j++)scanf(&quot;%lf&quot;,&amp;a[i][j]);
+    }
+    for(int i=1;i&lt;=n;i++){
+        for(int j=1;j&lt;=n;j++){
+            d[i][j] = 2 * (a[i+1][j] - a[i][j]);//系数
+            d[i][n+1] += (a[i+1][j] * a[i+1][j] - a[i][j] * a[i][j]);//常数项
+        }
+    }
+    for(int i=1;i&lt;=n;i++){
+         for(int j=1;j&lt;=n;j++){//高斯消元模板
+            if(i != j){
+                double x = d[j][i] / d[i][i];
+                for(int k=1;k&lt;=n+1;k++)d[j][k] -= x * d[i][k];
+            }
+         }
+    }
+    for(int i=1;i&lt; n;i++)printf(&quot;%.3lf &quot;,d[i][n + 1] / d[i][i]);
+    printf(&quot;%.3lf&quot;,d[n][n+1] / d[n][n]);//坑点,一定要单独输出
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id = "1014">1014</h1>
+<pre><code class = "c++">#include &lt;time.h&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+
+#define base 107
+#define val (o -&gt; v)
+#define siz (o -&gt; s)
+#define pre (o -&gt; p)
+#define cha (o -&gt; c)
+#define Lc (o -&gt; ch[0])
+#define Rc (o -&gt; ch[1])
+
+using namespace std;
+
+const int Maxn = 100010;
+
+struct Treap {
+    unsigned int v;
+    int p,s;char c;
+    Treap* ch[2];
+}*Root;
+
+int n,len,m;
+char s[Maxn];
+unsigned int hs[Maxn];
+
+typedef pair&lt;Treap*,Treap*&gt; Troot;
+
+int Size(Treap* o){return o?siz:0;}
+
+inline Treap* NewNode(char k,int w){
+    Treap* o = new Treap();
+    val = (unsigned int)(k - 96);pre = w;siz = 1;cha = k;
+    return o;
+}
+
+inline void Update(Treap* o){//维护所属区间的哈希值
+    siz = 1 + Size(Lc) + Size(Rc);
+    val = (unsigned int)(cha - 96);
+    if(!Lc &amp;&amp; Rc)val = val + Rc -&gt; v * hs[1];
+    if(Lc &amp;&amp; !Rc)val = Lc -&gt; v + val * hs[Size(Lc)];
+    if(Lc &amp;&amp; Rc)val = Lc -&gt; v + val * hs[Size(Lc)] + Rc -&gt; v * hs[Size(Lc) + 1];
+}
+
+inline Treap* Merge(Treap* A,Treap* B){
+    if(A == NULL)return B;
+    if(B == NULL)return A;
+    if(A -&gt; p &lt; B -&gt; p){A -&gt; ch[1] = Merge(A -&gt; ch[1],B);Update(A);return A;}
+    else {B -&gt; ch[0] = Merge(A,B -&gt; ch[0]);Update(B);return B;}
+}
+
+inline Troot Split(Treap* o,int k){
+    Troot Temp(NULL,NULL);
+    if(o == NULL)return Temp;
+    int LcSize = Size(Lc),RcSize = Size(Rc);
+    if(k &lt;= LcSize){
+        Temp = Split(Lc,k);Lc = Temp.second;
+        Update(o);Temp.second = o;
+    }
+    else {
+        Temp = Split(Rc,k - LcSize - 1);
+        Rc = Temp.first;Update(o);Temp.first = o;
+    }return Temp;
+}
+
+inline unsigned int Get(int a,int b){//提取一段区间的哈希值
+    Troot t1,t2;t1 = Split(Root,a-1);t2 = Split(t1.second,b);
+    Update(t2.first);unsigned Res = t2.first -&gt; v;
+    t1.second = Merge(t2.first,t2.second);
+    Root = Merge(t1.first,t1.second);return Res;
+}
+
+inline int Query(int x,int y){//二分答案
+    int l = 1,r = min(len - x + 1,len - y + 1),Ans = 0;
+    while(l &lt;= r){
+        int mid = (l + r) / 2;
+        unsigned int t1 = Get(x,mid),t2 = Get(y,mid);
+        if(t1 == t2)l = mid + 1,Ans = mid;
+        else r = mid - 1;
+    }return Ans;
+}
+
+inline void Delete(int k){
+    Troot x,y;
+    x = Split(Root,k - 1);
+    y = Split(x.second,1);
+    Root = Merge(x.first,y.second);
+}
+
+inline void Insert(int w,char k){
+    Troot x;Treap* Temp;
+    x = Split(Root,w);
+    Temp = NewNode(k,rand());
+    x.first = Merge(x.first,Temp);
+    Root = Merge(x.first,x.second);
+}
+
+int main(){
+    freopen(&quot;bzoj_1014.in&quot;,&quot;r&quot;,stdin);
+    freopen(&quot;bzoj_1014.out&quot;,&quot;w&quot;,stdout);
+    srand(time(NULL));
+    gets(s + 1);len = strlen(s + 1);hs[0] = 1;
+    for(int i=1;i&lt; Maxn;i++)hs[i] = hs[i-1] * base;
+    for(int i=1;i&lt;=len;i++){
+        Treap *Now = NewNode(s[i],rand());
+        Root = Merge(Root,Now);
+    }
+    scanf(&quot;%d&quot;,&amp;m);
+    for(int i=1;i&lt;=m;i++){char c;int x,y;
+        scanf(&quot;\n&quot;);scanf(&quot;%c&quot;,&amp;c); 
+        if(c == &#39;Q&#39;){
+            scanf(&quot;%d%d&quot;,&amp;x,&amp;y);
+            printf(&quot;%d\n&quot;,Query(x,y));
+        }
+        else if(c == &#39;R&#39;){
+            scanf(&quot;%d&quot;,&amp;x);scanf(&quot;\n&quot;);scanf(&quot;%c&quot;,&amp;c);
+            Delete(x);Insert(x - 1,c);
+        }
+        else {
+            scanf(&quot;%d&quot;,&amp;x);scanf(&quot;\n&quot;);scanf(&quot;%c&quot;,&amp;c);
+            Insert(x,c);len++;//插入元素
+        }
+    }
+    return 0;
+}
+</code></pre>
+<h1 id = "1015">1015</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+
+using namespace std;
+
+const int Maxn = 400010;
+
+struct node {int to,next;}E[Maxn];
+
+bool vis[Maxn];
+int a[Maxn],n,tot,k,m,cnt,res;
+int H[Maxn],fa[Maxn],x[Maxn],y[Maxn],Ans[Maxn];
+
+int find(int x){return fa[x] == x ? x : fa[x] = find(fa[x]);}
+
+void Add(int u,int v){E[++cnt].to = v;E[cnt].next = H[u];H[u] = cnt;}
+
+int main(){
+    // freopen(&quot;bzoj_10154.in&quot;,&quot;r&quot;,stdin);
+    // freopen(&quot;bzoj~~~~~.out&quot;,&quot;w&quot;,stdout);
+    scanf(&quot;%d%d&quot;,&amp;n,&amp;m);
+    for(int i=0;i&lt; n;i++)fa[i] = i;
+    for(int i=1;i&lt;=m;i++){
+        scanf(&quot;%d%d&quot;,&amp;x[i],&amp;y[i]);
+        Add(x[i],y[i]);Add(y[i],x[i]);
+    }scanf(&quot;%d&quot;,&amp;k);
+    for(int i=1;i&lt;=k;i++){
+        scanf(&quot;%d&quot;,&amp;a[i]);
+        vis[a[i]] = 1;
+    }
+    for(int i=0;i&lt; n;i++){
+        if(!vis[i]){
+            tot++;int u = i;
+            for(int j=H[u];j;j=E[j].next){
+                int v = E[j].to;
+                if(!vis[v]){
+                   int r1 = find(u),r2 = find(v);
+                    if(r1 != r2){fa[r1] = r2;tot--;}
+                }
+            }
+        }
+    }
+    Ans[++res] = tot;
+    for(int i=k;i&gt;=1;i--){
+        int u = a[i];vis[u] = 0;tot++;
+        for(int j=H[u];j;j=E[j].next){
+            int v = E[j].to;
+            if(!vis[v]){
+                int r1 = find(u),r2 = find(v);
+                if(r1 != r2){fa[r1] = r2;tot--;}
+            }
+        }Ans[++res] = tot;
+    }
+    for(int i=res;i&gt;=1;i--)printf(&quot;%d\n&quot;,Ans[i]);
+    // while(1);
+    return 0;
+}
+</code></pre>
+<h1 id = "1016">1016</h1>
+<pre><code class = "c++">#include &lt;cstdio&gt;
+#include &lt;cstring&gt;
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+//MST如果用到w权值的边k条
+//那么任意一颗MST用到w权值的边都是k条
+//搜索方案 + 乘法原理可过
+#define p 31011
+
+using namespace std;
+
+const int Maxn = 10001;
+
+struct node {int u,v,c;}e[Maxn];
+struct noda {int l,r,v;}g[Maxn];
+
+int n,m,fa[Maxn],cnt,tot,Ans = 1,Sum;
+
+bool comp(node a,node b){return a.c &lt; b.c;}
+
+int find(int x){
+    // printf(&quot;%d\n&quot;,x);
+    return fa[x] == x ? x : find(fa[x]) ;
+}
+
+void Dfs(int w,int Now,int k){
+    if(Now == g[w].r + 1){
+        if(k == g[w].v)Sum++;//成立
+        return;
+    }
+    int r1 = find(e[Now].u),r2 = find(e[Now].v);
+    // printf(&quot;%d\n&quot;,g[w].r);
+    if(r1 != r2){
+        fa[r1] = r2;
+        Dfs(w,Now + 1,k + 1);
+        fa[r1] = r1;fa[r2] = r2;
+    }Dfs(w,Now + 1,k);
+}
+
+int main(){
+    scanf(&quot;%d%d&quot;,&amp;n,&amp;m);
+    for(int i=1;i&lt;=n;i++)fa[i] = i;
+    for(int i=1;i&lt;=m;i++)scanf(&quot;%d%d%d&quot;,&amp;e[i].u,&amp;e[i].v,&amp;e[i].c);
+    sort(e + 1,e + m + 1,comp);
+    for(int i=1;i&lt;=m;i++){
+        if(e[i].c != e[i-1].c){g[++cnt].l = i;g[cnt-1].r = i - 1;}
+        int r1 = find(e[i].u),r2 = find(e[i].v);
+        if(r1 != r2){
+            g[cnt].v++;tot++;
+            fa[r1] = r2;
+        }
+    }g[cnt].r = m;
+    for(int i=1;i&lt;=n;i++)fa[i] = i;
+    if(tot != n - 1){printf(&quot;0\n&quot;);return 0;}
+    for(int i=1;i&lt;=cnt;i++){
+        Sum = 0;Dfs(i,g[i].l,0);Ans = (Ans * Sum) % p;
+        for(int j=g[i].l;j&lt;=g[i].r;j++){
+            // printf(&quot;%d %d\n&quot;,e[j].u,e[j].v);
+            int r1 = find(e[j].u),r2 = find(e[j].v);
+
+            // printf(&quot;!!!&quot;);
+            if(r1 != r2)fa[r1] = r2;
+        }
+    }printf(&quot;%d\n&quot;,Ans % p);
+    // while(1);
+    return 0;
+}
+</code></pre>
+
+<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="10002" data-title="Treap" data-url="https://ssssssay.github.io/sssSSSay.github.io/2017/02/17/Treap%E6%A8%A1%E6%9D%BF.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"sssSSSay"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- 多说公共JS代码 end -->
+
+
+<footer>
+    <div class="links">
+        <a href="{{site.baseurl}}/about/">About</a>
+        <a href="{{site.baseurl}}/contact/">Contact</a>
+    </div>
+    <div class="theme" onclick="theme()" style="    background-image: url({{site.baseurl}}/images/theme.svg)"></div>
+</footer>
+{% include analytics.html %}
+
+</body>
+</html>
