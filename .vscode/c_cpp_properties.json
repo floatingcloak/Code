@@ -9,7 +9,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "",
                 "path": [
-                    "/usr/include"
+                    "/usr/include",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "clang-x64"
@@ -23,7 +24,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "",
                 "path": [
-                    "/usr/include"
+                    "/usr/include",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "clang-x64"
@@ -44,7 +46,8 @@
                     "C:/MinGW/lib/*",
                     "C:/MinGW/include/*",
                     "C:/MinGW/lib/gcc/mingw32/4.6.2/include/*",
-                    "C:/MinGW/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++/*"
+                    "C:/MinGW/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++/*",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "msvc-x64"
@@ -54,5 +57,6 @@
         "style": "file",
         "fallback-style": "LLVM",
         "sort-includes": false
-    }
+    },
+    "version": 2
 }
