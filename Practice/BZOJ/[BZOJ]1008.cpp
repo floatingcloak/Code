@@ -27,6 +27,5 @@ int main(){
     // printf("%lld\n",Temp);
     while(Temp < 0)Temp += Pow(2,j++) * p;
     printf("%lld\n",Temp % p);
-    // while(1);
     return 0;
 }
