@@ -19,7 +19,7 @@ int main(){
 		y = x;
 	}b[++n] = y;cnt[n] = temp;
 	for(int i = 1;i <= n;i++){
-		for(int j = 1;j <= n;j++)dp[i][j] = INF;	
+		for(int j = 1;j <= n;j++)dp[i][j] = INF;
 	}
 	for(int i = 1;i <= n;i++){
 		if(cnt[i] == 1)dp[i][i] = 2;
